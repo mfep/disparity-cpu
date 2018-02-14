@@ -14,6 +14,7 @@
 
 constexpr int WINDOW = 9;
 constexpr int MAX_D = 260 / 4;
+constexpr int CROSS_TH = 8;
 
 
 std::vector<float> preprocessPixels(const std::vector<unsigned char>& pixels, unsigned& width, unsigned& height)
@@ -68,7 +69,7 @@ void savePixels(const std::vector<T>& pixels, unsigned width, unsigned height)
 }
 
 
-float windowMean(const Pixels<float>& pixels, int cx, int cy)
+float windowMean(const Pixelsf& pixels, int cx, int cy)
 {
     const int D = WINDOW / 2;
     float sum = 0.0f;
@@ -90,7 +91,7 @@ TEST_CASE("check if windowMean is correct")
 #endif
 
 
-float windowStd(const Pixels<float> &pixels, int cx, int cy)
+float windowStd(const Pixelsf &pixels, int cx, int cy)
 {
     const int D = WINDOW / 2;
     const float mean = windowMean(pixels, cx, cy);
@@ -113,7 +114,7 @@ TEST_CASE("check if windowStd is correct")
 #endif
 
 
-float calcZncc(const Pixels<float>& pixL, const Pixels<float>& pixR, int cx, int cy, int d, float meanL)
+float calcZncc(const Pixelsf& pixL, const Pixelsf& pixR, int cx, int cy, int d, float meanL)
 {
     const float meanR = windowMean(pixR, cx - d, cy);
 
@@ -128,7 +129,7 @@ float calcZncc(const Pixels<float>& pixL, const Pixels<float>& pixR, int cx, int
 }
 
 
-int findBestDisparity(const Pixels<float>& pixL, const Pixels<float>& pixR, int cx, int cy, bool invertD)
+int findBestDisparity(const Pixelsf& pixL, const Pixelsf& pixR, int cx, int cy, bool invertD)
 {
     const float meanL = windowMean(pixL, cx, cy);
 
@@ -145,7 +146,7 @@ int findBestDisparity(const Pixels<float>& pixL, const Pixels<float>& pixR, int 
 }
 
 
-Pixels<int> calcDepthMap(const Pixels<float>& leftPixels, const Pixels<float>& rightPixels, bool invertD)
+Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD)
 {
     const unsigned width = leftPixels.getWidth();
     const unsigned height = leftPixels.getHeight();
@@ -164,17 +165,33 @@ Pixels<int> calcDepthMap(const Pixels<float>& leftPixels, const Pixels<float>& r
         }
     }
 
-    return Pixels<int>(std::move(depthMap), width, height);
+    return Pixelsi(std::move(depthMap), width, height);
 }
 
 
-Pixels<int> normalize(const Pixels<int>& input)
+Pixelsi normalize(const Pixelsi& input)
 {
     std::vector<int> normalizedData(input.getWidth() * input.getHeight());
     for (int i = 0; i < input.getData().size(); ++i) {
         normalizedData[i] = input.getData()[i] * 255 / (MAX_D - 1);
     }
-    return Pixels<int>(std::move(normalizedData), input.getWidth(), input.getHeight());
+    return Pixelsi(std::move(normalizedData), input.getWidth(), input.getHeight());
+}
+
+
+Pixelsi crossCheck(const Pixelsi& in1, const Pixelsi& in2)
+{
+    std::vector<int> result(in1.getWidth() * in1.getHeight());
+    for (int i = 0; i < in1.getData().size(); ++i) {
+        const int px1 = in1.getData()[i];
+        const int px2 = in2.getData()[i];
+        if (abs(px1 - px2) > CROSS_TH) {
+            result[i] = 0;
+        } else {
+            result[i] = (px1 + px2) / 2;
+        }
+    }
+    return Pixelsi(std::move(result), in1.getWidth(), in1.getHeight());
 }
 
 
@@ -186,11 +203,13 @@ int main()
     auto grey1 = loadGreyPixels("im0.png", width, height);
     auto grey2 = loadGreyPixels("im1.png", width, height);
 
-    Pixels<float> greyPx1(std::move(grey1), width, height);
-    Pixels<float> greyPx2(std::move(grey2), width, height);
+    Pixelsf greyPx1(std::move(grey1), width, height);
+    Pixelsf greyPx2(std::move(grey2), width, height);
 
-    auto depthNorm = normalize(calcDepthMap(greyPx1, greyPx2, false));
-    savePixels(depthNorm.getData(), depthNorm.getWidth(), depthNorm.getHeight());
+    auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
+    auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
+
+    savePixels(normalize(crossCheck(depth1, depth2)).getData(), width, height);
 
     return 0;
 }

@@ -41,6 +41,9 @@ private:
     const unsigned m_height;
 };
 
+using Pixelsi = Pixels<int>;
+using Pixelsf = Pixels<float>;
+
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 TEST_CASE("testing Pixels accessor")
 {
