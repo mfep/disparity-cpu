@@ -5,8 +5,8 @@
 #include <memory>
 #include <sstream>
 #include <algorithm>
-#include "Pixels.hpp"
-#include "../thirdparty/lodepng.h"
+#include "PixelUtils.hpp"
+
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "thirdparty/doctest.h"
 #endif
@@ -15,58 +15,6 @@
 constexpr int WINDOW = 9;
 constexpr int MAX_D = 260 / 4;
 constexpr int CROSS_TH = 8;
-
-
-std::vector<float> preprocessPixels(const std::vector<unsigned char>& pixels, unsigned& width, unsigned& height)
-{
-    const float
-            R = 0.2126f,
-            G = 0.7152f,
-            B = 0.0722f;
-
-    unsigned index = 0;
-    std::vector<float> resized (pixels.size() / 16 / 3);
-    for (unsigned row = 0; row < height; row += 4) {
-        for (unsigned col = 0; col < width; col += 4) {
-            const unsigned char
-                    r = pixels[(row * width + col) * 3],
-                    g = pixels[(row * width + col) * 3 + 1],
-                    b = pixels[(row * width + col) * 3 + 2];
-            resized[index++] = r * R + g * G + b * B;
-        }
-    }
-    width /= 4;
-    height /= 4;
-    return resized;
-}
-
-
-std::vector<float> loadGreyPixels(const char *filename, unsigned& width, unsigned& height)
-{
-    std::vector<unsigned char> pixels;
-    unsigned error = lodepng::decode(pixels, width, height, filename, LCT_RGB);
-    if (error) {
-        std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-    } else {
-		std::cout << "loading '" << filename << "' was successful" << std::endl;
-	}
-    return preprocessPixels(pixels, width, height);
-}
-
-
-template<typename T>
-void savePixels(const std::vector<T>& pixels, unsigned width, unsigned height)
-{
-    std::vector<unsigned char> convertedPixels(pixels.size());
-    unsigned i = 0;
-    for (auto f : pixels) {
-        convertedPixels[i++] = static_cast<unsigned char>(f);
-    }
-    unsigned error = lodepng::encode("im0_resized.png", convertedPixels, width, height, LCT_GREY, 8);
-    if (error) {
-        std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-    }
-}
 
 
 float windowMean(const Pixelsf& pixels, int cx, int cy)
@@ -231,17 +179,13 @@ Pixelsi occlusionFill(const Pixelsi& in)
 
 int main()
 {
-    unsigned width, height;
-    auto grey1 = loadGreyPixels("im0.png", width, height);
-    auto grey2 = loadGreyPixels("im1.png", width, height);
-
-    Pixelsf greyPx1(std::move(grey1), width, height);
-    Pixelsf greyPx2(std::move(grey2), width, height);
+    auto greyPx1 = PixelUtils::loadGrey("im0.png");
+    auto greyPx2 = PixelUtils::loadGrey("im1.png");
 
     auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
     auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
 
-    savePixels(normalize(occlusionFill(crossCheck(depth1, depth2))).getData(), width, height);
+    PixelUtils::save(normalize(occlusionFill(crossCheck(depth1, depth2))), "depthmap.png");
 
     return 0;
 }
