@@ -158,6 +158,22 @@ Pixelsi occlusionFill(const Pixelsi& in) {
 }
 
 
+Pixelsi rowOcclusion(const Pixelsi& in) {
+    std::vector<int> result (in.getData());
+    for (int i = 0; i < result.size(); ++i) {
+        int offset = 1;
+        while (result[i] == 0) {
+            const int newIndex = i - offset++;
+            if (newIndex < 0 || newIndex >= result.size()) {
+                break;
+            }
+            result[i] = result[newIndex];
+        }
+    }
+    return Pixelsi(std::move(result), in.getWidth(), in.getHeight());
+}
+
+
 #ifndef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 int main() {
@@ -167,7 +183,7 @@ int main() {
     auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
     auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
 
-    PixelUtils::save(normalize(occlusionFill(crossCheck(depth1, depth2))), "depthmap.png");
+    PixelUtils::save(normalize(rowOcclusion(crossCheck(depth1, depth2))), "depthmap.png");
 
     return 0;
 }

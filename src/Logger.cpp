@@ -47,5 +47,5 @@ void Logger::logProgress(const char *text, float percent) {
 
 void Logger::endProgress(const char *text) {
     m_lastBars = 0;
-    std::cout << text << std::endl;
+    std::cout << std::endl << text << std::endl;
 }
