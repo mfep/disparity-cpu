@@ -1,5 +1,5 @@
-#ifndef CPU_GOLDEN_PIXELS_HPP
-#define CPU_GOLDEN_PIXELS_HPP
+#ifndef DISPARITY_CPU_PIXELS_HPP
+#define DISPARITY_CPU_PIXELS_HPP
 
 
 #include <vector>
@@ -56,4 +56,4 @@ TEST_CASE("testing Pixels accessor") {
 #endif
 
 
-#endif //CPU_GOLDEN_PIXELS_HPP
+#endif //DISPARITY_CPU_PIXELS_HPP

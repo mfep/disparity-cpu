@@ -1,5 +1,5 @@
-#ifndef CPU_GOLDEN_PIXELUTILS_HPP
-#define CPU_GOLDEN_PIXELUTILS_HPP
+#ifndef DISPARITY_CPU_PIXELUTILS_HPP
+#define DISPARITY_CPU_PIXELUTILS_HPP
 
 
 #include "Pixels.hpp"
@@ -14,4 +14,4 @@ void    save        (const Pixelsi &pixels, const char* filename);
 };
 
 
-#endif //CPU_GOLDEN_PIXELUTILS_HPP
+#endif //DISPARITY_CPU_PIXELUTILS_HPP

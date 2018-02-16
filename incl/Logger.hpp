@@ -1,5 +1,5 @@
-#ifndef CPU_GOLDEN_LOGGER_HPP
-#define CPU_GOLDEN_LOGGER_HPP
+#ifndef DISPARITY_CPU_LOGGER_HPP
+#define DISPARITY_CPU_LOGGER_HPP
 
 
 #include <chrono>
@@ -20,4 +20,4 @@ private:
 };
 
 
-#endif //CPU_GOLDEN_LOGGER_HPP
+#endif //DISPARITY_CPU_LOGGER_HPP
