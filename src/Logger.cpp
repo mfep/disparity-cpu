@@ -4,6 +4,8 @@
 
 
 int Logger::m_lastBars = 0;
+const char* Logger::m_progressText = nullptr;
+std::chrono::system_clock::time_point Logger::m_startTime;
 
 
 void Logger::logLoad(unsigned code, const char *filename) {
@@ -24,7 +26,14 @@ void Logger::logSave(unsigned code, const char *filename) {
 }
 
 
-void Logger::logProgress(const char *text, float percent) {
+void Logger::startProgress(const char* text) {
+    m_progressText = text;
+    std::cout << "starting " << text << std::endl;
+    m_startTime = std::chrono::system_clock::now();
+}
+
+
+void Logger::logProgress(float percent) {
     const int BARS = 40;
 
     const auto currentBars = static_cast<int>(percent * BARS);
@@ -32,10 +41,12 @@ void Logger::logProgress(const char *text, float percent) {
         return;
     }
     m_lastBars = currentBars;
-    std::cout << text << "\t[";
+    std::cout << m_progressText << "\t[";
     for (int i = 0; i < BARS; ++i) {
-        if (i <= currentBars) {
+        if (i < currentBars) {
             std::cout << "=";
+        } else if (i == currentBars) {
+            std::cout << ">";
         } else {
             std::cout << " ";
         }
@@ -45,7 +56,8 @@ void Logger::logProgress(const char *text, float percent) {
 }
 
 
-void Logger::endProgress(const char *text) {
+void Logger::endProgress() {
+    std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - m_startTime;
     m_lastBars = 0;
-    std::cout << std::endl << text << std::endl;
+    std::cout << std::endl << "ended " << m_progressText << " in " << elapsed.count() << "s" << std::endl;
 }

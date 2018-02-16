@@ -88,6 +88,8 @@ int findBestDisparity(const Pixelsf& pixL, const Pixelsf& pixR, int cx, int cy, 
 
 
 Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD) {
+    Logger::startProgress("calculating depth map");
+
     const unsigned width = leftPixels.getWidth();
     const unsigned height = leftPixels.getHeight();
 
@@ -97,9 +99,9 @@ Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool
         for (unsigned col = 0; col < width; ++col) {
             depthMap[index++] = findBestDisparity(leftPixels, rightPixels, col, row, invertD);
         }
-        Logger::logProgress("calculating depth map", 1.f * row / height);
+        Logger::logProgress(1.f * row / height);
     }
-    Logger::endProgress("finished calculating depth map");
+    Logger::endProgress();
     return Pixelsi(std::move(depthMap), width, height);
 }
 
@@ -130,6 +132,7 @@ Pixelsi crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
 
 Pixelsi occlusionFill(const Pixelsi& in)
 {
+    Logger::startProgress("calculating occlusion fill");
     const int MAX_OFFSET = 50;
 
     auto fillFun = [&in](int row, int col, int offset, int& result) {
@@ -158,9 +161,9 @@ Pixelsi occlusionFill(const Pixelsi& in)
             }
             result[index++] = newData;
         }
-        Logger::logProgress("calculating occlusion fill", 1.f * row / in.getHeight());
+        Logger::logProgress(1.f * row / in.getHeight());
     }
-    Logger::endProgress("done with occlusion fill");
+    Logger::endProgress();
 
     return Pixelsi(std::move(result), in.getWidth(), in.getHeight());
 }
