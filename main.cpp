@@ -195,6 +195,38 @@ Pixelsi crossCheck(const Pixelsi& in1, const Pixelsi& in2)
 }
 
 
+Pixelsi occlusionFill(const Pixelsi& in)
+{
+    const int OCCLUSION_ITER = 5;
+
+    std::vector<int> result(in.getWidth() * in.getHeight());
+    unsigned index = 0;
+
+    for (int row = 0; row < in.getHeight(); ++row) {
+        for (int col = 0; col < in.getWidth(); ++col) {
+            if (in.get(row, col) != 0) {
+                result[index++] = in.get(row, col);
+            } else {
+                int occludedValue = 0;
+                for (int occ_i = 1; occ_i <= OCCLUSION_ITER; ++occ_i) {
+                    occludedValue = in.get(row + occ_i, col);
+                    if (occludedValue != 0) break;
+                    occludedValue = in.get(row - occ_i, col);
+                    if (occludedValue != 0) break;
+                    occludedValue = in.get(row, col + occ_i);
+                    if (occludedValue != 0) break;
+                    occludedValue = in.get(row, col - occ_i);
+                    if (occludedValue != 0) break;
+                }
+                result[index++] = occludedValue;
+            }
+        }
+    }
+
+    return Pixelsi(std::move(result), in.getWidth(), in.getHeight());
+}
+
+
 #ifndef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 int main()
@@ -209,7 +241,7 @@ int main()
     auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
     auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
 
-    savePixels(normalize(crossCheck(depth1, depth2)).getData(), width, height);
+    savePixels(normalize(occlusionFill(crossCheck(depth1, depth2))).getData(), width, height);
 
     return 0;
 }
