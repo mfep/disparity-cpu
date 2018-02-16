@@ -31,6 +31,17 @@ Pixelsf preprocessPixels(const std::vector<unsigned char> &pixels, unsigned widt
     return Pixelsf(std::move(resized), width, height);
 }
 
+
+template<typename T, typename U>
+std::vector<T> convertPixels(const std::vector<U>& in) {
+    std::vector<T> result(in.size());
+    unsigned index = 0;
+    for (auto& v : result) {
+        v = static_cast<T>(in[index++]);
+    }
+    return result;
+}
+
 }
 
 
@@ -43,13 +54,16 @@ Pixelsf PixelUtils::loadGrey(const char *filename) {
 }
 
 
-void PixelUtils::save(const Pixelsi& pixels, const char* filename) {
-    std::vector<unsigned char> convertedPixels(pixels.getData().size());
-    unsigned i = 0;
-    for (auto f : pixels.getData()) {
-        convertedPixels[i++] = static_cast<unsigned char>(f);
-    }
-    unsigned error = lodepng::encode(filename, convertedPixels, pixels.getWidth(), pixels.getHeight(), LCT_GREY, 8);
-    Logger::logSave(error, filename);
+Pixelsi PixelUtils::load(const char* filename) {
+    unsigned width, height;
+    std::vector<unsigned char> filedata;
+    unsigned error = lodepng::decode(filedata, width, height, filename, LCT_GREY);
+    Logger::logLoad(error, filename);
+    return Pixelsi(convertPixels<int, unsigned char>(filedata), width, height);
 }
 
+
+void PixelUtils::save(const Pixelsi& pixels, const char* filename) {
+    unsigned error = lodepng::encode(filename, convertPixels<unsigned char, int>(pixels.getData()), pixels.getWidth(), pixels.getHeight(), LCT_GREY, 8);
+    Logger::logSave(error, filename);
+}

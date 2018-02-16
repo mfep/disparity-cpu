@@ -128,48 +128,40 @@ Pixelsi crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
 }
 
 
-Pixelsi occlusionFill(const Pixelsi& in) {
-    const int OCCLUSION_ITER = 5;
+Pixelsi occlusionFill(const Pixelsi& in)
+{
+    const int MAX_OFFSET = 50;
 
-    std::vector<int> result(in.getWidth() * in.getHeight());
-    unsigned index = 0;
+    auto fillFun = [&in](int row, int col, int offset, int& result) {
+        for (int r = row - offset; r < row + offset; ++r) {
+            for (int c = col - offset; c < col + offset; ++c) {
+                if (in.get(r, c) != 0) {
+                    result = in.get(r, c);
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
 
+    std::vector<int> result(in.getData().size());
+    int index = 0;
     for (int row = 0; row < in.getHeight(); ++row) {
         for (int col = 0; col < in.getWidth(); ++col) {
-            if (in.get(row, col) != 0) {
-                result[index++] = in.get(row, col);
-            } else {
-                int occludedValue = 0;
-                for (int occ_i = 1; occ_i <= OCCLUSION_ITER; ++occ_i) {
-                    occludedValue = in.get(row + occ_i, col);
-                    if (occludedValue != 0) break;
-                    occludedValue = in.get(row - occ_i, col);
-                    if (occludedValue != 0) break;
-                    occludedValue = in.get(row, col + occ_i);
-                    if (occludedValue != 0) break;
-                    occludedValue = in.get(row, col - occ_i);
-                    if (occludedValue != 0) break;
+            int newData = in.get(row, col);
+            if (newData == 0) {
+                for (int offset = 1; offset <= MAX_OFFSET; ++offset) {
+                    if (fillFun(row, col, offset, newData)) {
+                        break;
+                    }
                 }
-                result[index++] = occludedValue;
             }
+            result[index++] = newData;
         }
+        Logger::logProgress("calculating occlusion fill", 1.f * row / in.getHeight());
     }
-    return Pixelsi(std::move(result), in.getWidth(), in.getHeight());
-}
+    Logger::endProgress("done with occlusion fill");
 
-
-Pixelsi rowOcclusion(const Pixelsi& in) {
-    std::vector<int> result (in.getData());
-    for (int i = 0; i < result.size(); ++i) {
-        int offset = 1;
-        while (result[i] == 0) {
-            const int newIndex = i - offset++;
-            if (newIndex < 0 || newIndex >= result.size()) {
-                break;
-            }
-            result[i] = result[newIndex];
-        }
-    }
     return Pixelsi(std::move(result), in.getWidth(), in.getHeight());
 }
 
@@ -183,7 +175,9 @@ int main() {
     auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
     auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
 
-    PixelUtils::save(normalize(rowOcclusion(crossCheck(depth1, depth2))), "depthmap.png");
+    auto crossChecked = normalize(crossCheck(depth1, depth2));
+    PixelUtils::save(crossChecked, "depthmap.png");
+    PixelUtils::save(occlusionFill(crossChecked), "occluded.png");
 
     return 0;
 }

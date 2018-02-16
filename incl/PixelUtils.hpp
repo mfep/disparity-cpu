@@ -7,7 +7,8 @@
 
 namespace PixelUtils {
 
-Pixelsf loadGrey    (const char *filename);
+Pixelsf loadGrey    (const char* filename);
+Pixelsi load        (const char* filename);
 void    save        (const Pixelsi &pixels, const char* filename);
 
 };
