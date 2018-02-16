@@ -6,7 +6,7 @@
 #include <sstream>
 #include <algorithm>
 #include "Pixels.hpp"
-#include "thirdparty/lodepng.h"
+#include "../thirdparty/lodepng.h"
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "thirdparty/doctest.h"
 #endif
