@@ -2,6 +2,7 @@
 #include <sstream>
 #include <memory>
 #include <iostream>
+#include "Logger.hpp"
 #include "PixelUtils.hpp"
 #include "../thirdparty/lodepng.h"
 
@@ -38,11 +39,7 @@ Pixelsf PixelUtils::loadGrey(const char *filename)
     unsigned width, height;
     std::vector<unsigned char> pixels;
     unsigned error = lodepng::decode(pixels, width, height, filename, LCT_RGB);
-    if (error) {
-        std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-    } else {
-		std::cout << "loading '" << filename << "' was successful" << std::endl;
-	}
+    Logger::logLoad(error, filename);
     return preprocessPixels(pixels, width, height);
 }
 
@@ -55,8 +52,6 @@ void PixelUtils::save(const Pixelsi& pixels, const char* filename)
         convertedPixels[i++] = static_cast<unsigned char>(f);
     }
     unsigned error = lodepng::encode(filename, convertedPixels, pixels.getWidth(), pixels.getHeight(), LCT_GREY, 8);
-    if (error) {
-        std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-    }
+    Logger::logSave(error, filename);
 }
 

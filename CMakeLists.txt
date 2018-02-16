@@ -3,4 +3,4 @@ project(cpu_golden)
 
 set(CMAKE_CXX_STANDARD 14)
 include_directories($(PROJECT_DIRECTORY)/incl)
-add_executable(cpu_golden src/main.cpp src/PixelUtils.cpp thirdparty/lodepng.cpp)
+add_executable(cpu_golden src/main.cpp src/PixelUtils.cpp src/Logger.cpp thirdparty/lodepng.cpp)
