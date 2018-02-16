@@ -34,8 +34,7 @@ Pixelsf preprocessPixels(const std::vector<unsigned char> &pixels, unsigned widt
 }
 
 
-Pixelsf PixelUtils::loadGrey(const char *filename)
-{
+Pixelsf PixelUtils::loadGrey(const char *filename) {
     unsigned width, height;
     std::vector<unsigned char> pixels;
     unsigned error = lodepng::decode(pixels, width, height, filename, LCT_RGB);
@@ -44,8 +43,7 @@ Pixelsf PixelUtils::loadGrey(const char *filename)
 }
 
 
-void PixelUtils::save(const Pixelsi& pixels, const char* filename)
-{
+void PixelUtils::save(const Pixelsi& pixels, const char* filename) {
     std::vector<unsigned char> convertedPixels(pixels.getData().size());
     unsigned i = 0;
     for (auto f : pixels.getData()) {

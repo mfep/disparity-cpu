@@ -20,8 +20,7 @@ public:
     unsigned getHeight() const noexcept { return m_height; }
     const std::vector<T>& getData() const noexcept { return m_data; }
 
-    T get(int row, int col) const noexcept
-    {
+    T get(int row, int col) const noexcept {
         if (row < 0) {
             row = 0;
         } else if ((unsigned)row >= m_height) {
@@ -45,8 +44,7 @@ using Pixelsi = Pixels<int>;
 using Pixelsf = Pixels<float>;
 
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-TEST_CASE("testing Pixels accessor")
-{
+TEST_CASE("testing Pixels accessor") {
     Pixels pw ({1, 2, 3, 4, 5, 6, 7, 8, 9}, 3, 3);
     CHECK_EQ(pw.get(0, 0), 1);
     CHECK_EQ(pw.get(0, -1), 1);

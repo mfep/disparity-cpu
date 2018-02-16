@@ -2,12 +2,15 @@
 #define CPU_GOLDEN_LOGGER_HPP
 
 
-namespace Logger {
+class Logger {
+public:
+    static void logLoad        (unsigned code, const char *filename);
+    static void logSave        (unsigned code, const char *filename);
+    static void logProgress    (const char* text, float percent);
+    static void endProgress    (const char* text);
 
-void logLoad        (unsigned code, const char *filename);
-void logSave(unsigned code, const char *filename);
-void logProgress    (const char* text, float percent);
-
+private:
+    static int m_lastBars;
 };
 
 
