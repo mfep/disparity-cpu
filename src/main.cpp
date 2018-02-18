@@ -7,7 +7,7 @@
 #include "PixelUtils.hpp"
 
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "thirdparty/doctest.h"
+#include "../thirdparty/doctest.h"
 #endif
 
 
@@ -17,19 +17,16 @@ constexpr int CROSS_TH = 8;
 
 
 float windowMean(const Pixelsf& pixels, int cx, int cy) {
-    const int D = WINDOW / 2;
     float sum = 0.0f;
-    for (int row = cy - D; row <= cy + D; ++row) {
-        for (int col = cx - D; col <= cx + D; ++col) {
-            sum += pixels.get(row, col);
-        }
-    }
+    pixels.enumerateWindow(cx, cy, WINDOW, [&sum](float value){
+        sum += value;
+    });
     return sum / static_cast<float>(WINDOW * WINDOW);
 }
 
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 TEST_CASE("check if windowMean is correct") {
-    Pixels pw ({77,63,31,29,8,17,72,9,92,43,8,57,83,35,78,71,59,38,39,43,42,22,50,4,56,5,87,86,34,97,95,99,16,0,25,35,23,76,23,45,26,35,90,1,13,39,84,21,94,97,38,98,12,76,58,62,49,22,14,64,80,67,47,94,59,23,68,32,75,100,27,93,70,10,25,93,48,88,78,2,77}, 9, 9);
+    Pixelsf pw ({77,63,31,29,8,17,72,9,92,43,8,57,83,35,78,71,59,38,39,43,42,22,50,4,56,5,87,86,34,97,95,99,16,0,25,35,23,76,23,45,26,35,90,1,13,39,84,21,94,97,38,98,12,76,58,62,49,22,14,64,80,67,47,94,59,23,68,32,75,100,27,93,70,10,25,93,48,88,78,2,77}, 9, 9);
     CHECK(windowMean(pw, 4, 4) == doctest::Approx(50.8765).epsilon(0.0001));
     CHECK(windowMean(pw, 0, 4) == doctest::Approx(54.4691).epsilon(0.0001));
 }
@@ -37,22 +34,18 @@ TEST_CASE("check if windowMean is correct") {
 
 
 float windowStd(const Pixelsf &pixels, int cx, int cy) {
-    const int D = WINDOW / 2;
     const float mean = windowMean(pixels, cx, cy);
     float sum = 0.0f;
-    for (int row = cy - D; row <= cy + D; ++row) {
-        for (int col = cx - D; col <= cx + D; ++col) {
-            const float val = pixels.get(row, col) - mean;
-            sum += val * val;
-        }
-    }
+    pixels.enumerateWindow(cx, cy, WINDOW, [&sum, mean](float value) {
+        sum += (value - mean)*(value - mean);
+    });
     return sqrtf(sum);
 }
 
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 TEST_CASE("check if windowStd is correct") {
-    Pixels pw ({77,63,31,29,8,17,72,9,92,43,8,57,83,35,78,71,59,38,39,43,42,22,50,4,56,5,87,86,34,97,95,99,16,0,25,35,23,76,23,45,26,35,90,1,13,39,84,21,94,97,38,98,12,76,58,62,49,22,14,64,80,67,47,94,59,23,68,32,75,100,27,93,70,10,25,93,48,88,78,2,77}, 9, 9);
-    CHECK(windowStd(pw, 4, 4, 0) == doctest::Approx(271.6298).epsilon(0.0001));
+    Pixelsf pw ({77,63,31,29,8,17,72,9,92,43,8,57,83,35,78,71,59,38,39,43,42,22,50,4,56,5,87,86,34,97,95,99,16,0,25,35,23,76,23,45,26,35,90,1,13,39,84,21,94,97,38,98,12,76,58,62,49,22,14,64,80,67,47,94,59,23,68,32,75,100,27,93,70,10,25,93,48,88,78,2,77}, 9, 9);
+    CHECK(windowStd(pw, 4, 4) == doctest::Approx(271.6298).epsilon(0.0001));
 }
 #endif
 
@@ -89,20 +82,12 @@ int findBestDisparity(const Pixelsf& pixL, const Pixelsf& pixR, int cx, int cy, 
 
 Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD) {
     Logger::startProgress("calculating depth map");
-
-    const unsigned width = leftPixels.getWidth();
-    const unsigned height = leftPixels.getHeight();
-
-    std::vector<int> depthMap(width * height);
-    unsigned index = 0;
-    for (unsigned row = 0; row < height; ++row) {
-        for (unsigned col = 0; col < width; ++col) {
-            depthMap[index++] = findBestDisparity(leftPixels, rightPixels, col, row, invertD);
-        }
-        Logger::logProgress(1.f * row / height);
-    }
+    auto depthmap = pixelZip<float, int>(leftPixels, rightPixels,
+                                         [invertD, &leftPixels, &rightPixels](int row, int col) {
+                                             return findBestDisparity(leftPixels, rightPixels, col, row, invertD);
+                                         });
     Logger::endProgress();
-    return Pixelsi(std::move(depthMap), width, height);
+    return depthmap;
 }
 
 
