@@ -4,6 +4,10 @@
 
 #include <vector>
 #include <functional>
+#include <thread>
+#include <future>
+#include <algorithm>
+#include <iostream>
 
 
 template<typename T>
@@ -60,14 +64,32 @@ Pixels<U> pixelZip(const Pixels<T> &leftPixels, const Pixels<T> &rightPixels, co
     if (leftPixels.getHeight() != rightPixels.getHeight() || leftPixels.getWidth() != rightPixels.getWidth()) {
         throw std::exception();
     }
-    std::vector<U> result(leftPixels.getData().size());
-    unsigned index = 0;
-    for (int row = 0; row < leftPixels.getWidth(); ++row) {
-        for (int col = 0; col < leftPixels.getHeight(); ++col) {
-            result[index++] = fun(row, col);
-        }
-        Logger::logProgress(1.f * row / leftPixels.getHeight());
+    const unsigned THREADS = 4;
+    const int width = leftPixels.getWidth();
+    const int height = leftPixels.getHeight();
+    const int rows = height / THREADS;
+
+    std::vector<std::future<std::vector<U>>> futures;
+    for (int i = 0; i < THREADS; ++i) {
+        futures.push_back(std::async(std::launch::async, [width, height, THREADS, rows, i, &fun](){
+            std::vector<U> subRes(width*height/THREADS);
+            if (i < 2) return subRes;
+            unsigned index = 0;
+            for (int row = i*rows; row < (i+1)*rows; ++row) {
+                for (int col = 0; col < width; ++col) {
+                    subRes[index++] = fun(row, col);
+                }
+            }
+            return subRes;
+        }));
     }
+
+    std::vector<U> result;
+    for (auto& future : futures) {
+        auto subRes = future.get();
+        result.insert(result.end(), subRes.begin(), subRes.end());
+    }
+
     return Pixels<U>(std::move(result), leftPixels.getWidth(), leftPixels.getHeight());
 }
 
