@@ -54,15 +54,6 @@ Pixelsf PixelUtils::loadGrey(const char *filename) {
 }
 
 
-Pixelsi PixelUtils::load(const char* filename) {
-    unsigned width, height;
-    std::vector<unsigned char> filedata;
-    unsigned error = lodepng::decode(filedata, width, height, filename, LCT_GREY);
-    Logger::logLoad(error, filename);
-    return Pixelsi(convertPixels<int, unsigned char>(filedata), width, height);
-}
-
-
 void PixelUtils::save(const Pixelsi& pixels, const char* filename) {
     unsigned error = lodepng::encode(filename, convertPixels<unsigned char, int>(pixels.getData()), pixels.getWidth(), pixels.getHeight(), LCT_GREY, 8);
     Logger::logSave(error, filename);

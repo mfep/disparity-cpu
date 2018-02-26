@@ -65,7 +65,7 @@ int findBestDisparity(const Pixelsf &pixL, const Pixelsf &pixR, int cx, int cy, 
 
 Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD) {
     Logger::startProgress("calculating depth map");
-    auto depthmap = pixelZip<float, int>(leftPixels, rightPixels,
+    auto depthmap = Pixelsf::pixelZip<int>(leftPixels, rightPixels,
                                          [invertD, &leftPixels, &rightPixels](int row, int col) {
                                              return findBestDisparity(leftPixels, rightPixels, col, row, invertD);
                                          });

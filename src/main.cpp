@@ -7,6 +7,8 @@
 #ifndef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 int main() {
+    using namespace DisparityAlgorithm;
+
     auto greyPx1 = PixelUtils::loadGrey("im0.png");
     auto greyPx2 = PixelUtils::loadGrey("im1.png");
 
