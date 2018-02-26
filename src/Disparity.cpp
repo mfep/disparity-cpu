@@ -129,7 +129,6 @@ Pixelsi occlusionFill(const Pixelsi& in)
             }
             result[index++] = newData;
         }
-        Logger::logProgress(1.f * row / in.getHeight());
     }
     Logger::endProgress();
 

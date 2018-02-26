@@ -33,6 +33,7 @@ void Logger::startProgress(const char* text) {
 }
 
 
+// TODO multithreaded logging
 void Logger::logProgress(float percent) {
     const int BARS = 40;
 

@@ -73,7 +73,6 @@ Pixels<U> pixelZip(const Pixels<T> &leftPixels, const Pixels<T> &rightPixels, co
     for (int i = 0; i < THREADS; ++i) {
         futures.push_back(std::async(std::launch::async, [width, height, THREADS, rows, i, &fun](){
             std::vector<U> subRes(width*height/THREADS);
-            if (i < 2) return subRes;
             unsigned index = 0;
             for (int row = i*rows; row < (i+1)*rows; ++row) {
                 for (int col = 0; col < width; ++col) {

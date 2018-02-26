@@ -14,7 +14,6 @@ int main() {
     auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
 
     auto crossChecked = normalize(crossCheck(depth1, depth2));
-    PixelUtils::save(crossChecked, "depthmap.png");
     PixelUtils::save(occlusionFill(crossChecked), "occluded.png");
 
     return 0;
