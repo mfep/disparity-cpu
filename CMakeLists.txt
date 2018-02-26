@@ -3,7 +3,8 @@ project(disparity_cpu)
 
 set(CMAKE_CXX_STANDARD 14)
 include_directories($(PROJECT_DIRECTORY)/incl)
-add_executable(disparity_cpu src/main.cpp src/PixelUtils.cpp src/Logger.cpp thirdparty/lodepng.cpp)
+set(SOURCE_FILES src/main.cpp src/PixelUtils.cpp src/Logger.cpp thirdparty/lodepng.cpp src/Disparity.cpp)
+add_executable(disparity_cpu ${SOURCE_FILES})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
