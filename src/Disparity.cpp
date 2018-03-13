@@ -63,7 +63,7 @@ int findBestDisparity(const Pixelsf &pixL, const Pixelsf &pixR, int cx, int cy, 
 }   // namespace
 
 
-Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD) {
+Pixelsi DisparityAlgorithm::calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD) {
     Logger::startProgress("calculating depth map");
     auto depthmap = Pixelsf::pixelZip<int>(leftPixels, rightPixels,
                                          [invertD, &leftPixels, &rightPixels](int row, int col) {
@@ -74,7 +74,7 @@ Pixelsi calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool
 }
 
 
-Pixelsi normalize(const Pixelsi& input) {
+Pixelsi DisparityAlgorithm::normalize(const Pixelsi& input) {
     std::vector<int> normalizedData(input.getWidth() * input.getHeight());
     for (int i = 0; i < input.getData().size(); ++i) {
         normalizedData[i] = input.getData()[i] * 255 / (MAX_D - 1);
@@ -83,7 +83,7 @@ Pixelsi normalize(const Pixelsi& input) {
 }
 
 
-Pixelsi crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
+Pixelsi DisparityAlgorithm::crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
     std::vector<int> result(in1.getWidth() * in1.getHeight());
     for (int i = 0; i < in1.getData().size(); ++i) {
         const int px1 = in1.getData()[i];
@@ -98,7 +98,7 @@ Pixelsi crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
 }
 
 
-Pixelsi occlusionFill(const Pixelsi& in)
+Pixelsi DisparityAlgorithm::occlusionFill(const Pixelsi& in)
 {
     Logger::startProgress("calculating occlusion fill");
     const int MAX_OFFSET = 50;
