@@ -8,6 +8,7 @@
 #include <future>
 #include <algorithm>
 #include <iostream>
+#include "CliOptions.hpp"
 
 
 /// Provides helper functionality to linearly stored pixel arrays.
@@ -88,15 +89,15 @@ public:
         if (leftPixels.getHeight() != rightPixels.getHeight() || leftPixels.getWidth() != rightPixels.getWidth()) {
             throw std::exception();
         }
-        const unsigned THREADS = 4;
+        const unsigned threads = static_cast<unsigned>(CliOptions::getThreads());
         const int width = leftPixels.getWidth();
         const int height = leftPixels.getHeight();
-        const int rows = height / THREADS;
+        const int rows = height / threads;
 
         std::vector<std::future<std::vector<U>>> futures;
-        for (int i = 0; i < THREADS; ++i) {
-            futures.push_back(std::async(std::launch::async, [width, height, THREADS, rows, i, &fun](){
-                std::vector<U> subRes(width*height/THREADS);
+        for (int i = 0; i < threads; ++i) {
+            futures.push_back(std::async(std::launch::async, [width, height, threads, rows, i, &fun](){
+                std::vector<U> subRes(width*height/threads);
                 unsigned index = 0;
                 for (int row = i*rows; row < (i+1)*rows; ++row) {
                     for (int col = 0; col < width; ++col) {

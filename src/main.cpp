@@ -1,5 +1,6 @@
 //#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
+#include "Logger.hpp"
 #include "Disparity.hpp"
 #include "PixelUtils.hpp"
 #include "CliOptions.hpp"
@@ -9,6 +10,7 @@
 
 int main(int argc, const char* argv[]) {
     CliOptions::parse(argc, argv);
+    Logger::logInit();
 
     using namespace DisparityAlgorithm;
 

@@ -5,6 +5,7 @@
 #include <memory>
 
 
+// TODO documentation
 class CliOptions {
 public:
     static void parse       (int argc, const char* argv[]);

@@ -1,11 +1,20 @@
 #include "Logger.hpp"
 #include <iostream>
 #include "../thirdparty/lodepng.h"
+#include "CliOptions.hpp"
 
 
 int Logger::m_lastBars = 0;
 const char* Logger::m_progressText = nullptr;
 std::chrono::system_clock::time_point Logger::m_startTime;
+
+
+void Logger::logInit() {
+    std::cout <<
+        "Disparity algorithm CPU implementation started." << std::endl <<
+        "Number of worker threads = " << CliOptions::getThreads() << std::endl <<
+        "Window size = " << CliOptions::getWindow() << std::endl;
+}
 
 
 void Logger::logLoad(unsigned code, const char *filename) {
