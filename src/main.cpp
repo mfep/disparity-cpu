@@ -2,11 +2,14 @@
 
 #include "Disparity.hpp"
 #include "PixelUtils.hpp"
+#include "CliOptions.hpp"
 
 
 #ifndef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-int main() {
+int main(int argc, const char* argv[]) {
+    CliOptions::parse(argc, argv);
+
     using namespace DisparityAlgorithm;
 
     auto greyPx1 = PixelUtils::loadGrey("im0.png");
