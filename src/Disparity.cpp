@@ -13,7 +13,7 @@ constexpr int CROSS_TH = 8;
 
 namespace {
 
-float windowStd(const PixelCalc &pixelCalc, int cx, int cy) {
+float windowStd(const PixelCalc& pixelCalc, int cx, int cy) {
     const float mean = pixelCalc.means().get(cy, cx);
     float sum = 0.0f;
     pixelCalc.pixels().enumerateWindow(cx, cy, WINDOW, [&sum, mean](float value) {
@@ -23,7 +23,7 @@ float windowStd(const PixelCalc &pixelCalc, int cx, int cy) {
 }
 
 
-float calcZncc(const PixelCalc &pixL, const PixelCalc &pixR, int cx, int cy, int d) {
+float calcZncc(const PixelCalc& pixL, const PixelCalc& pixR, int cx, int cy, int d) {
     const int D = WINDOW / 2;
     float sum = 0.0f;
     for (int row = cy - D; row <= cy + D; ++row) {
@@ -36,7 +36,7 @@ float calcZncc(const PixelCalc &pixL, const PixelCalc &pixR, int cx, int cy, int
 }
 
 
-int findBestDisparity(const PixelCalc &pixL, const PixelCalc &pixR, int cx, int cy, bool invertD) {
+int findBestDisparity(const PixelCalc& pixL, const PixelCalc& pixR, int cx, int cy, bool invertD) {
     float best_zncc = 0.0f;
     int best_disp = 0;
     for (int disp = 0; disp < MAX_D; ++disp) {
