@@ -76,6 +76,20 @@ public:
         }
     }
 
+    // TODO docs
+    std::vector<T> getWindowData(int cx, int cy, int window, int arraySize = 0) const {
+        const auto size = static_cast<unsigned>(std::max(arraySize, window * window));
+        std::vector<T> windowData(size);
+        const int d = window / 2;
+        int index = 0;
+        for (int row = cy - d; row <= cy + d; ++row) {
+            for (int col = cx - d; col <= cx + d; ++col) {
+                windowData[index++] = get(row, col);
+            }
+        }
+        return windowData;
+    }
+
     /// Enumerates two `Pixels` instances against each other in a multithreaded way.
     /// Throws an `std::exception` if the two input `Pixels` is different in size.
     /// \tparam U The type of the output `Pixels` object.

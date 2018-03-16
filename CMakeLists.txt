@@ -15,6 +15,7 @@ set(SOURCE_FILES
         src/CliOptions.cpp
         inc/PixelCalc.hpp
         src/PixelCalc.cpp
+        inc/Float8.hpp
         thirdparty/cxxopts.hpp
         thirdparty/doctest.h
         thirdparty/lodepng.h
