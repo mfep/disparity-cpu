@@ -1,6 +1,7 @@
 #include "Logger.hpp"
 #include "Pixels.hpp"
 #include "Disparity.hpp"
+#include "PixelCalc.hpp"
 #ifdef DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "../thirdparty/doctest.h"
 #endif
@@ -12,46 +13,34 @@ constexpr int CROSS_TH = 8;
 
 namespace {
 
-float windowMean(const Pixelsf &pixels, int cx, int cy) {
+float windowStd(const PixelCalc &pixelCalc, int cx, int cy) {
+    const float mean = pixelCalc.means().get(cy, cx);
     float sum = 0.0f;
-    pixels.enumerateWindow(cx, cy, WINDOW, [&sum](float value) {
-        sum += value;
-    });
-    return sum / static_cast<float>(WINDOW * WINDOW);
-}
-
-
-float windowStd(const Pixelsf &pixels, int cx, int cy) {
-    const float mean = windowMean(pixels, cx, cy);
-    float sum = 0.0f;
-    pixels.enumerateWindow(cx, cy, WINDOW, [&sum, mean](float value) {
+    pixelCalc.pixels().enumerateWindow(cx, cy, WINDOW, [&sum, mean](float value) {
         sum += (value - mean) * (value - mean);
     });
     return sqrtf(sum);
 }
 
 
-float calcZncc(const Pixelsf &pixL, const Pixelsf &pixR, int cx, int cy, int d, float meanL) {
-    const float meanR = windowMean(pixR, cx - d, cy);
-
+float calcZncc(const PixelCalc &pixL, const PixelCalc &pixR, int cx, int cy, int d) {
     const int D = WINDOW / 2;
     float sum = 0.0f;
     for (int row = cy - D; row <= cy + D; ++row) {
         for (int col = cx - D; col <= cx + D; ++col) {
-            sum += (pixL.get(row, col) - meanL) * (pixR.get(row, col - d) - meanR);
+            sum += (pixL.pixels().get(row, col) - pixL.means().get(row, col))
+                   * (pixR.pixels().get(row, col - d) - pixR.means().get(row, col - d));
         }
     }
     return sum / windowStd(pixL, cx, cy) / windowStd(pixR, cx - d, cy);
 }
 
 
-int findBestDisparity(const Pixelsf &pixL, const Pixelsf &pixR, int cx, int cy, bool invertD) {
-    const float meanL = windowMean(pixL, cx, cy);
-
+int findBestDisparity(const PixelCalc &pixL, const PixelCalc &pixR, int cx, int cy, bool invertD) {
     float best_zncc = 0.0f;
     int best_disp = 0;
     for (int disp = 0; disp < MAX_D; ++disp) {
-        const float zncc = calcZncc(pixL, pixR, cx, cy, invertD ? -disp : disp, meanL);
+        const float zncc = calcZncc(pixL, pixR, cx, cy, invertD ? -disp : disp);
         if (zncc > best_zncc) {
             best_zncc = zncc;
             best_disp = disp;
@@ -64,10 +53,13 @@ int findBestDisparity(const Pixelsf &pixL, const Pixelsf &pixR, int cx, int cy, 
 
 
 Pixelsi DisparityAlgorithm::calcDepthMap(const Pixelsf& leftPixels, const Pixelsf& rightPixels, bool invertD) {
+    const auto leftCalc = PixelCalc::calculatePixelCalc(leftPixels, WINDOW);
+    const auto rightCalc = PixelCalc::calculatePixelCalc(rightPixels, WINDOW);
+
     Logger::startProgress("calculating depth map");
-    auto depthmap = Pixelsf::pixelZip<int>(leftPixels, rightPixels,
-                                         [invertD, &leftPixels, &rightPixels](int row, int col) {
-                                             return findBestDisparity(leftPixels, rightPixels, col, row, invertD);
+    const auto depthmap = Pixelsf::pixelZip<int>(leftPixels, rightPixels,
+                                         [invertD, &leftCalc, &rightCalc](int row, int col) {
+                                             return findBestDisparity(leftCalc, rightCalc, col, row, invertD);
                                          });
     Logger::endProgress();
     return depthmap;

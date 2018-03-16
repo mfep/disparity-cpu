@@ -14,13 +14,13 @@ int main(int argc, const char* argv[]) {
 
     using namespace DisparityAlgorithm;
 
-    auto greyPx1 = PixelUtils::loadGrey("im0.png");
-    auto greyPx2 = PixelUtils::loadGrey("im1.png");
+    const auto greyPx1 = PixelUtils::loadGrey("im0.png");
+    const auto greyPx2 = PixelUtils::loadGrey("im1.png");
 
-    auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
-    auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
+    const auto depth1 = calcDepthMap(greyPx1, greyPx2, false);
+    const auto depth2 = calcDepthMap(greyPx2, greyPx1, true);
 
-    auto crossChecked = normalize(crossCheck(depth1, depth2));
+    const auto crossChecked = normalize(crossCheck(depth1, depth2));
     PixelUtils::save(occlusionFill(crossChecked), "occluded.png");
 
     return 0;

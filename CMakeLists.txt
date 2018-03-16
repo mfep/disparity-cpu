@@ -13,6 +13,8 @@ set(SOURCE_FILES
         src/Disparity.cpp
         inc/CliOptions.hpp
         src/CliOptions.cpp
+        inc/PixelCalc.hpp
+        src/PixelCalc.cpp
         thirdparty/cxxopts.hpp
         thirdparty/doctest.h
         thirdparty/lodepng.h
