@@ -20,6 +20,10 @@ set(SOURCE_FILES
         thirdparty/lodepng.h
         thirdparty/lodepng.cpp)
 
+set(CXX_ARCH_FLAG "-mavx")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX_ARCH_FLAG}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_ARCH_FLAG}")
+
 add_executable(disparity_cpu ${SOURCE_FILES})
 message(project dir : ${PROJECT_SOURCE_DIR})
 target_include_directories(disparity_cpu PRIVATE inc thirdparty)
