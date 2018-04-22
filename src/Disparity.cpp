@@ -84,6 +84,7 @@ Pixelsi DisparityAlgorithm::normalize(const Pixelsi& input) {
 
 
 Pixelsi DisparityAlgorithm::crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
+    Logger::startProgress("cross-checking");
     std::vector<int> result(in1.getWidth() * in1.getHeight());
     for (int i = 0; i < in1.getData().size(); ++i) {
         const int px1 = in1.getData()[i];
@@ -94,6 +95,7 @@ Pixelsi DisparityAlgorithm::crossCheck(const Pixelsi& in1, const Pixelsi& in2) {
             result[i] = (px1 + px2) / 2;
         }
     }
+    Logger::endProgress();
     return Pixelsi(move(result), in1.getWidth(), in1.getHeight());
 }
 

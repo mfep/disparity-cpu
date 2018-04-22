@@ -37,7 +37,7 @@ void Logger::logSave(unsigned code, const char *filename) {
 
 void Logger::startProgress(const char* text) {
     m_progressText = text;
-    std::cout << "starting " << text << std::endl;
+    std::cout << "=== starting " << text << std::endl;
     m_startTime = std::chrono::system_clock::now();
 }
 
@@ -69,5 +69,5 @@ void Logger::logProgress(float percent) {
 void Logger::endProgress() {
     std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - m_startTime;
     m_lastBars = 0;
-    std::cout << std::endl << "ended " << m_progressText << " in " << elapsed.count() << "s" << std::endl;
+    std::cout << "ended " << m_progressText << " in " << elapsed.count() << "s" << std::endl;
 }

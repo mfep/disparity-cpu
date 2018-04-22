@@ -10,6 +10,7 @@
 namespace {
 
 Pixelsf preprocessPixels(const std::vector<unsigned char> &pixels, unsigned width, unsigned height) {
+    Logger::startProgress("preprocess");
     const float
             R = 0.2126f,
             G = 0.7152f,
@@ -28,6 +29,7 @@ Pixelsf preprocessPixels(const std::vector<unsigned char> &pixels, unsigned widt
     }
     width /= 4;
     height /= 4;
+    Logger::endProgress();
     return Pixelsf(std::move(resized), width, height);
 }
 
