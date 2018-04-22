@@ -1,0 +1,18 @@
+Disparity algorithm CPU implementation started.
+Number of worker threads = 4
+Window size = 9
+loading 'im0.png' was successful
+=== starting preprocess
+ended preprocess in 0.00169785s
+loading 'im1.png' was successful
+=== starting preprocess
+ended preprocess in 0.00143699s
+=== starting calculating depth map
+ended calculating depth map in 11.0491s
+=== starting calculating depth map
+ended calculating depth map in 11.8038s
+=== starting cross-checking
+ended cross-checking in 0.00124571s
+=== starting calculating occlusion fill
+ended calculating occlusion fill in 0.0808271s
+successfully saved file: occluded.png
